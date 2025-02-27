@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs";
 import { User } from "../models/user.model.js";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
+import { sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/email.js";
+
 export const singup = async(req, res)=>{
     const {email, password, name} = req.body;
    try {
@@ -26,6 +28,10 @@ export const singup = async(req, res)=>{
     await user.save();
     //jwt 
     generateTokenAndSetCookie(res, user._id)
+    
+    await sendVerificationEmail(user.email, verificationToken)
+
+
     res.status(200).json({
         success : true,
         message : "user created successfully!",
@@ -40,10 +46,76 @@ export const singup = async(req, res)=>{
    }
 }
 
-export const login = async(req, res)=>{
-    res.send("login route")
+
+
+
+//verify email 
+export const verifyEmail = async(req, res)=>{
+    const {code} = req.body;
+    try {
+        const user = await User.findOne({
+            verificationToken: code,
+            verificationTokenExpiresAt : {$gt :Date.now()}
+        })
+        if(!user){
+            return res.status(400).json({success : false, message:"Invalid or expired verification code"})
+        }
+        user.isVerified = true,
+        user.verificationToken = undefined;
+        user.verificationTokenExpiresAt = undefined
+        await user.save()
+        
+        await sendWelcomeEmail(user.email, user.name);
+        res.status(200).json({
+            success : true,
+            message : "Email Verified successfully",
+            user : {
+                ...user._doc,
+                password: undefined
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        
+    }
 }
 
 export const logout = async(req, res)=>{
-    res.send("login route")
+    res.clearCookie("token")
+    res.status(200).json({
+        success :true,
+        message : "Logged out successfully!"
+    })
+}
+
+
+export const login = async(req, res)=>{
+    const {email, password} = req.body;
+
+   try {
+        const user = await User.findOne({email})
+        if(!user){
+            return res.status(400).json({success:false, message:"Invalid creadentials"})
+        }
+        const isPasswordValid = await bcrypt.compare(password, user.password)
+        if(!isPasswordValid){
+            return res.status(400).json({success:false, message:"Invalid creadentials"})
+        }
+        generateTokenAndSetCookie(res, user._id);
+
+        user.lastLogin = new Date();
+        await user.save();
+
+        res.status(200).json({
+            success : true,
+            message : "Logged in successfully",
+            user : {
+                ...user._doc,
+                password: undefined
+            }
+        })
+   } catch (error) {
+        console.log("Error in login function");
+        res.status(400).json({success:false, message:error.message})
+   }
 }
