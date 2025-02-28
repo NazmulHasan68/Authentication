@@ -4,6 +4,21 @@ import { User } from "../models/user.model.js";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 import { SendPasswordResetEmail, sendResetSuccessEmail, sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/email.js";
 
+
+export const checkAuth = async(req, res)=>{
+    try {
+       const user = await User.findById(req.userId)
+       if(!user){
+        return res.status(400).json({success:false, message:"User not found!"})
+       } 
+       res.status(400).json({success:true, user})
+
+    } catch (error) {
+        console.log("Check authentication ",error);
+        res.status(500).json({success:false, message:"Authentication faild!"})
+    }
+}
+
 export const singup = async(req, res)=>{
     const {email, password, name} = req.body;
    try {

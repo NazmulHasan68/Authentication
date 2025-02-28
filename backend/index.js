@@ -1,4 +1,5 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv"
 dotenv.config()
 import { connectDB } from "./db/connectDB.js";
@@ -12,6 +13,7 @@ app.get("/",(req, res)=>{
     res.send("Hello world 123")
 })
 app.use(express.json()) // allows us to parse incoming request : req.body
+app.use(cookieParser()) // allows us to parse incoming cookies
 app.use("/api/auth", authRoutes)
 
 app.listen(PORT, ()=>{
