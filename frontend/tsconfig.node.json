@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+      "module": "CommonJS",
+      "esModuleInterop": true,
+      "allowJs": true,
+      "strict": true,
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "target": "ES6",
+      "moduleResolution": "Node",
+      "resolveJsonModule": true,
+      "forceConsistentCasingInFileNames": true,
+      "skipLibCheck": true
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "dist"]
+  }
+  
