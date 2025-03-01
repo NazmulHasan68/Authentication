@@ -9,6 +9,7 @@ import { Toaster } from 'react-hot-toast'
 import { useAuthStore } from './store/authStore'
 import { useEffect } from 'react'
 import HomePage from './pages/HomePage'
+import LoadinSpinner from './components/compoent/LoadinSpinner'
 
 
 //protect routes that require authentication
@@ -41,6 +42,7 @@ function App() {
     checkAuth()
   },[checkAuth])
 
+  if(isCheckingAuth) return <LoadinSpinner/>
   console.log(isAuthenticated, user);
   
 
