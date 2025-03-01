@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
+import toast from 'react-hot-toast';
+import { Loader } from 'lucide-react';
 
 export default function EmailVerification() {
     const [code, setCode] = useState(["", "", "", "", "", ""]);
     const inputRefs = useRef(new Array(6).fill(null));
     const navigate = useNavigate();
-    const isLoading = false;
+
+    const {error , isLoading, verifyEmail} = useAuthStore()
 
     const handleChange = (index, value) => {
         let newCode = [...code];
@@ -40,15 +44,19 @@ export default function EmailVerification() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
         const enteredCode = code.join("");
-        console.log("Entered Code:", enteredCode);
+        try {
+            await verifyEmail(enteredCode)
+            navigate("/");
+            toast.success("Email verified successfully")
+        } catch (error) {
+            toast.error(error)
+        }
 
-        // Navigate with code as state
-        navigate("/", { state: { code: enteredCode } });
     };
-    
+
     // Auto-submit when all fields are filled
     useEffect(() => {
         if (code.every((digit) => digit !== "")) {
@@ -91,7 +99,7 @@ export default function EmailVerification() {
                         whileTap={{ scale: 0.98 }}
                         type='submit'
                     >
-                        {isLoading ? <div className='w-6 h-6 animate-spin mx-auto' /> : "Verify Email"}
+                        {isLoading ? <Loader className='w-6 h-6 animate-spin mx-auto' /> : "Verify Email"}
                     </motion.button>
                 </form>
             </motion.div>

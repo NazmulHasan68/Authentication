@@ -11,7 +11,7 @@ export const checkAuth = async(req, res)=>{
        if(!user){
         return res.status(400).json({success:false, message:"User not found!"})
        } 
-       res.status(400).json({success:true, user})
+       res.status(200).json({success:true, user})
 
     } catch (error) {
         console.log("Check authentication ",error);
@@ -108,14 +108,15 @@ export const logout = async(req, res)=>{
 export const login = async(req, res)=>{
     const {email, password} = req.body;
 
+
    try {
         const user = await User.findOne({email})
         if(!user){
-            return res.status(400).json({success:false, message:"Invalid creadentials"})
+            return res.status(400).json({success:false, message:"Invalid creadentials email"})
         }
         const isPasswordValid = await bcrypt.compare(password, user.password)
         if(!isPasswordValid){
-            return res.status(400).json({success:false, message:"Invalid creadentials"})
+            return res.status(400).json({success:false, message:"Invalid creadentials password"})
         }
         generateTokenAndSetCookie(res, user._id);
 
