@@ -10,6 +10,8 @@ import { useAuthStore } from './store/authStore'
 import { useEffect } from 'react'
 import HomePage from './pages/HomePage'
 import LoadinSpinner from './components/compoent/LoadinSpinner'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 
 
 //protect routes that require authentication
@@ -36,15 +38,14 @@ const RedirectAuthenticatedUser = ({children}) =>{
 
 function App() {
 
-  const { isCheckingAuth, checkAuth, isAuthenticated , user} = useAuthStore()
+  const { isCheckingAuth, checkAuth} = useAuthStore()
 
   useEffect(()=>{
     checkAuth()
   },[checkAuth])
 
   if(isCheckingAuth) return <LoadinSpinner/>
-  console.log(isAuthenticated, user);
-  
+
 
   return (
     <div className='min-h-screen bg-gradient-to-tr from-gray-900 to-emerald-900 flex justify-center items-center relative overflow-hidden'>
@@ -57,6 +58,8 @@ function App() {
         <Route path='/signup' element={<RedirectAuthenticatedUser><SignupPage/></RedirectAuthenticatedUser>}/>
         <Route path='/login' element={<RedirectAuthenticatedUser><LoginPage/></RedirectAuthenticatedUser>}/>
         <Route path='/verify-email' element={<EmailVerification/>}/>
+        <Route path='/forgot-password' element={<RedirectAuthenticatedUser><ForgotPasswordPage/></RedirectAuthenticatedUser>}/>
+        <Route path='/reset-password/:token' element={<RedirectAuthenticatedUser><ResetPasswordPage/></RedirectAuthenticatedUser>} />
       </Routes>
       <Toaster />
     </div>
